@@ -1,5 +1,9 @@
 # Crypto Guardian CLI 🛡️
 
+<a href="https://www.npmjs.com/package/crypto-guardian-cli">
+  <img src="https://img.shields.io/npm/v/crypto-guardian-cli?style=flat-square" alt="npm version">
+</a>
+
 A lightweight, secure, and interactive Command Line Interface (CLI) tool designed for cryptographic operations. Built natively in TypeScript and Node.js, it leverages hardware-backed cryptography to generate high-entropy military-grade passwords and securely encrypt sensitive data using advanced encryption standards.
 
 Developed under the engineering standards of **Jhero Studio**.
