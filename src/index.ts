@@ -1,3 +1,4 @@
+#!/usr/bin/env node
 import { createInterface } from 'node:readline';
 import { generateSecurePassword } from './entropy.js';
 import { encrypt, decrypt } from './cipher.js';

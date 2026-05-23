@@ -1,5 +1,9 @@
 # Crypto Guardian CLI 🛡️
 
+<a href="https://www.npmjs.com/package/crypto-guardian-cli">
+  <img src="https://img.shields.io/npm/v/crypto-guardian-cli?style=flat-square" alt="npm version">
+</a>
+
 A lightweight, secure, and interactive Command Line Interface (CLI) tool designed for cryptographic operations. Built natively in TypeScript and Node.js, it leverages hardware-backed cryptography to generate high-entropy military-grade passwords and securely encrypt sensitive data using advanced encryption standards.
 
 Developed under the engineering standards of **Jhero Studio**.
@@ -28,7 +32,7 @@ crypto-guardian-cli/
 ├── package.json          # Dependencies & project scripts
 ├── tsconfig.json         # TypeScript compiler configuration
 └── README.md             # Project documentation
-
+```
 ---
 
 🛠️ TECHNICAL STACK & SECURITY IMPLEMENTATION
@@ -47,8 +51,8 @@ Prerequisites
 Ensure you have Node.js installed on your machine (v23 or higher recommended).
 
 Installation
-1.  Clone repository 
-    ```bash
+1.  Clone repository
+ ```bash
 git clone https://github.com/Jherostudio/crypto-guardian-cli.git
 cd crypto-guardian-cli
 ```
@@ -70,18 +74,24 @@ npx tsx src/index.ts
 1. Generating a Secure Key
 Choose option 1, enter your desired length (e.g., 16), and the system will output your password along with its calculated mathematical resistance:
 
+```bash
 Plaintext
 ✅ Generada: L9jMKP$<#PHmQ@{$
 📊 Entropía: 104.87 bits [MILITAR]
+```
 
 2. Encrypting Sensitive Data
 
 Choose option 2, paste your data (such as raw database credentials), and establish a master phrase. The output is a secure payload structure containing salt:iv:authTag:cipherText:
 
+
+```bash
 Plaintext
 47e188f79133dbe...61f2aa3f58f8800cd3932a1242
+```
 
 ---
 
 📄 LICENSE
 This project is open-source and available under the MIT License.
+ 
