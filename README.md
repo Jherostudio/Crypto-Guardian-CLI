@@ -72,6 +72,7 @@ The CLI is fully scriptable for CI/CD environments or bash scripts:
 
 **1. Generate a Password (automatically copied to clipboard):**
 ```bash
+feature/enterprise-upgrade
 crypto-guardian generate --length 32
 ```
 
@@ -119,3 +120,14 @@ Crypto-Guardian-CLI/
 
 ## 📄 License
 This project is open-source and available under the MIT License.
+
+Plaintext
+47e188f79133dbe...61f2aa3f58f8800cd3932a1242
+```
+
+---
+
+📄 LICENSE
+This project is open-source and available under the MIT License.
+ 
+main
