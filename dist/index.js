@@ -10,7 +10,7 @@ import { encrypt, decrypt, CryptoGuardianError } from './cipher.js';
 const program = new Command();
 program
     .name('crypto-guardian')
-    .description('Herramienta de encriptación militar y generador de contraseñas de alta entropía')
+    .description('Herramienta CLI de encriptación AES-256-GCM y generador de contraseñas de alta entropía')
     .version('1.0.2');
 // ==========================================
 // CLI FLAGS (No interactivo)
@@ -70,7 +70,7 @@ program
     const entropy = calculateEntropy(options.password);
     let level = 'DÉBIL';
     if (entropy >= 80)
-        level = 'MILITAR';
+        level = 'EXTREMA';
     else if (entropy >= 60)
         level = 'FUERTE';
     else if (entropy >= 40)
@@ -142,7 +142,7 @@ function showMenu() {
     console.log('\x1b[38;5;208m' + figlet.textSync('GUARDIAN CLI', { font: 'Standard' }) + '\x1b[0m');
     console.log('                                  \x1b[36m[ by Jhero Studio ]\x1b[0m\n');
     console.log('\x1b[90m=========================================================================\x1b[0m');
-    console.log(' \x1b[32m[1]\x1b[0m Generar Contraseña Militar (Cálculo de Entropía)');
+    console.log(' \x1b[32m[1]\x1b[0m Generar Contraseña Criptográficamente Segura (Alta Entropía)');
     console.log(' \x1b[32m[2]\x1b[0m Encriptar Credenciales o Texto (AES-256-GCM)');
     console.log(' \x1b[32m[3]\x1b[0m Desencriptar Bloque Seguro');
     console.log(' \x1b[32m[4]\x1b[0m Auditar una Contraseña Propia');
@@ -198,7 +198,7 @@ function showMenu() {
                     const entropy = calculateEntropy(pass);
                     let level = 'DÉBIL';
                     if (entropy >= 80)
-                        level = 'MILITAR';
+                        level = 'EXTREMA';
                     else if (entropy >= 60)
                         level = 'FUERTE';
                     else if (entropy >= 40)

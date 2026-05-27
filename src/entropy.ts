@@ -3,7 +3,7 @@ import { randomInt } from 'node:crypto';
 interface PasswordResult {
     password: string;
     entropy: number;
-    level: 'DEBIL' | 'MEDIA' | 'FUERTE' | 'MILITAR';
+    level: 'DÉBIL' | 'MEDIA' | 'FUERTE' | 'EXTREMA';
 }
 
 // 1. Calcular la entropía matemática real
@@ -21,11 +21,11 @@ export function calculateEntropy(password: string): number {
 }
 
 // 2. Determinar el nivel de seguridad basado en los bits de entropía
-function getSecurityLevel(entropy: number): 'DEBIL' | 'MEDIA' | 'FUERTE' | 'MILITAR' {
-    if (entropy < 40) return 'DEBIL';
+function getSecurityLevel(entropy: number): 'DÉBIL' | 'MEDIA' | 'FUERTE' | 'EXTREMA' {
+    if (entropy < 40) return 'DÉBIL';
     if (entropy < 60) return 'MEDIA';
     if (entropy < 80) return 'FUERTE';
-    return 'MILITAR';
+    return 'EXTREMA';
 }
 
 // 3. Generador criptográficamente seguro usando hardware (crypto nativo)

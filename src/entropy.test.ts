@@ -35,10 +35,10 @@ describe('Crypto Guardian Entropy Generator', () => {
             expect(/[^a-zA-Z0-9]/.test(password)).toBe(true);
         });
 
-        it('should achieve MILITAR level for default length 16 with all char types', () => {
+        it('should achieve EXTREMA level for default length 16 with all char types', () => {
             const { level } = generateSecurePassword(16);
-            // 16 chars from a 94-char pool gives ~104 bits of entropy (>80 is MILITAR)
-            expect(level).toBe('MILITAR');
+            // 16 chars from a 94-char pool gives ~104 bits of entropy (>80 is EXTREMA)
+            expect(level).toBe('EXTREMA');
         });
     });
 });

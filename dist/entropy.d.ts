@@ -1,7 +1,7 @@
 interface PasswordResult {
     password: string;
     entropy: number;
-    level: 'DEBIL' | 'MEDIA' | 'FUERTE' | 'MILITAR';
+    level: 'DÉBIL' | 'MEDIA' | 'FUERTE' | 'EXTREMA';
 }
 export declare function calculateEntropy(password: string): number;
 export declare function generateSecurePassword(length?: number): PasswordResult;
