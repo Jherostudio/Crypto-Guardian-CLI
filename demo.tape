@@ -1,42 +1,45 @@
-# Ejecutar esto instalando vhs: https://github.com/charmbracelet/vhs
-# Comando: vhs demo.tape
-
 Output demo.gif
 
-Require tsx
+Require npm
 
-Set FontSize 18
+Set FontSize 16
 Set Width 1200
-Set Height 600
+Set Height 700
 Set FontFamily "JetBrains Mono"
 Set Theme "Dracula"
 Set Padding 20
 
-Type "tsx src/index.ts"
+Type "npm start"
 Sleep 500ms
 Enter
 
-Sleep 1.5s
-# Opción 1: Generar
+Sleep 2s
+# Opción 1: Generar Contraseña Extrema
 Type "1"
 Enter
 Sleep 1s
 Type "32"
 Enter
 Sleep 3s
+# Presionar Enter para volver al menú
+Enter
+Sleep 2s
 
-# Opción 2: Encriptar
+# Opción 2: Encriptar Texto
 Type "2"
 Enter
 Sleep 1s
-Type "mi_secreto_super_confidencial"
+Type "SUPER_SECRET_DATABASE_URL=postgres://..."
 Enter
 Sleep 1s
-Type "mi_frase_maestra_123"
+Type "master_key_123"
 Enter
-Sleep 4s
+Sleep 3s
+# Presionar Enter para volver al menú
+Enter
+Sleep 2s
 
-# Salir
-Type "4"
+# Opción 6: Salir
+Type "6"
 Enter
 Sleep 2s

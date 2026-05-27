@@ -29,6 +29,8 @@ jobs:
     - name: Build TypeScript
       run: npm run build
       
-    # Se activará una vez que instalemos vitest/jest
-    # - name: Run tests
-    #   run: npm test
+    - name: Run tests
+      run: npm test
+
+    - name: Run NPM Audit (Security Scan)
+      run: npm audit --audit-level=high

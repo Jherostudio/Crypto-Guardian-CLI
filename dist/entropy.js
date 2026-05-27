@@ -18,12 +18,12 @@ export function calculateEntropy(password) {
 // 2. Determinar el nivel de seguridad basado en los bits de entropía
 function getSecurityLevel(entropy) {
     if (entropy < 40)
-        return 'DEBIL';
+        return 'DÉBIL';
     if (entropy < 60)
         return 'MEDIA';
     if (entropy < 80)
         return 'FUERTE';
-    return 'MILITAR';
+    return 'EXTREMA';
 }
 // 3. Generador criptográficamente seguro usando hardware (crypto nativo)
 export function generateSecurePassword(length = 16) {
