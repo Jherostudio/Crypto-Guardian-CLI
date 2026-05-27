@@ -4,6 +4,7 @@ import fs from 'node:fs';
 import path from 'node:path';
 import { Command } from 'commander';
 import clipboardy from 'clipboardy';
+import figlet from 'figlet';
 import { generateSecurePassword, calculateEntropy } from './entropy.js';
 import { encrypt, decrypt, CryptoGuardianError } from './cipher.js';
 const program = new Command();
@@ -131,18 +132,24 @@ const rl = createInterface({
     input: process.stdin,
     output: process.stdout
 });
+function promptContinue() {
+    rl.question('\n👉 Presiona ENTER para volver al menú principal...', () => {
+        showMenu();
+    });
+}
 function showMenu() {
-    console.log('\n==================================================');
-    console.log('       🛡️  GUARDIÁN CRIPTOGRÁFICO v1.0  🛡️');
-    console.log('==================================================');
-    console.log('1. Generar Contraseña Militar (Cálculo de Entropía)');
-    console.log('2. Encriptar Credenciales o Texto (AES-256-GCM)');
-    console.log('3. Desencriptar Bloque Seguro');
-    console.log('4. Auditar una Contraseña Propia');
-    console.log('5. Encriptar un Archivo en Disco (Ej. .env)');
-    console.log('6. Salir del Sistema');
-    console.log('==================================================');
-    rl.question('⚡ Selecciona una operación [1-6]: ', (choice) => {
+    console.clear();
+    console.log('\x1b[38;5;208m' + figlet.textSync('GUARDIAN CLI', { font: 'Standard' }) + '\x1b[0m');
+    console.log('                                  \x1b[36m[ by Jhero Studio ]\x1b[0m\n');
+    console.log('\x1b[90m=========================================================================\x1b[0m');
+    console.log(' \x1b[32m[1]\x1b[0m Generar Contraseña Militar (Cálculo de Entropía)');
+    console.log(' \x1b[32m[2]\x1b[0m Encriptar Credenciales o Texto (AES-256-GCM)');
+    console.log(' \x1b[32m[3]\x1b[0m Desencriptar Bloque Seguro');
+    console.log(' \x1b[32m[4]\x1b[0m Auditar una Contraseña Propia');
+    console.log(' \x1b[32m[5]\x1b[0m Encriptar un Archivo en Disco (Ej. .env)');
+    console.log(' \x1b[31m[6]\x1b[0m Salir del Sistema');
+    console.log('\x1b[90m=========================================================================\x1b[0m');
+    rl.question('\n⚡ Selecciona una operación [1-6]: ', (choice) => {
         switch (choice.trim()) {
             case '1':
                 rl.question('\n🔑 Longitud deseada (Enter para 16): ', (len) => {
@@ -152,7 +159,7 @@ function showMenu() {
                     console.log(`📊 Entropía: ${res.entropy} bits [${res.level}]`);
                     clipboardy.writeSync(res.password);
                     console.log('\n📋 \x1b[36m¡Copiada al portapapeles automáticamente!\x1b[0m');
-                    showMenu();
+                    promptContinue();
                 });
                 break;
             case '2':
@@ -163,7 +170,7 @@ function showMenu() {
                         console.log(`\x1b[36m${encrypted}\x1b[0m`);
                         clipboardy.writeSync(encrypted);
                         console.log('\n📋 \x1b[36m¡Bloque copiado al portapapeles!\x1b[0m');
-                        showMenu();
+                        promptContinue();
                     });
                 });
                 break;
@@ -182,7 +189,7 @@ function showMenu() {
                                 console.log('\n❌ \x1b[31mError:\x1b[0m Llave incorrecta o bloque manipulado.');
                             }
                         }
-                        showMenu();
+                        promptContinue();
                     });
                 });
                 break;
@@ -198,7 +205,7 @@ function showMenu() {
                         level = 'MEDIA';
                     console.log(`\n📊 Entropía Matemática: \x1b[33m${entropy} bits\x1b[0m`);
                     console.log(`🛡️  Nivel de Seguridad: \x1b[32m[${level}]\x1b[0m`);
-                    showMenu();
+                    promptContinue();
                 });
                 break;
             case '5':
@@ -215,7 +222,7 @@ function showMenu() {
                         catch (err) {
                             console.log(`\n❌ \x1b[31mError:\x1b[0m ${err.message}`);
                         }
-                        showMenu();
+                        promptContinue();
                     });
                 });
                 break;
@@ -225,15 +232,17 @@ function showMenu() {
                 break;
             default:
                 console.log('\n❌ Opción no válida.');
-                showMenu();
+                promptContinue();
                 break;
         }
     });
 }
-// Analizar argumentos de la línea de comandos
-program.parse(process.argv);
 // Si no se pasaron argumentos (solo node index.js), iniciar modo interactivo
-if (!process.argv.slice(2).length) {
+if (process.argv.slice(2).length === 0) {
     showMenu();
+}
+else {
+    // Analizar argumentos de la línea de comandos
+    program.parse(process.argv);
 }
 //# sourceMappingURL=index.js.map
