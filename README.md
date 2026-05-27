@@ -118,16 +118,11 @@ Crypto-Guardian-CLI/
 
 ---
 
-## 📄 License
-This project is open-source and available under the MIT License.
-
+```
 Plaintext
 47e188f79133dbe...61f2aa3f58f8800cd3932a1242
 ```
-
 ---
 
-📄 LICENSE
-This project is open-source and available under the MIT License.
- 
-main
+## 📄 License
+This project is open-source and proudly developed by **Jhero Studio**. It is available under the **MIT License**.
