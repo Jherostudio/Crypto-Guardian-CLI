@@ -1,3 +1,6 @@
+export declare class CryptoGuardianError extends Error {
+    constructor(message: string);
+}
 /**
  * 1. Encriptar texto plano usando una frase maestra
  */

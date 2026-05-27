@@ -1,4 +1,10 @@
 import { createCipheriv, createDecipheriv, randomBytes, scryptSync } from 'node:crypto';
+export class CryptoGuardianError extends Error {
+    constructor(message) {
+        super(message);
+        this.name = 'CryptoGuardianError';
+    }
+}
 // Configuración del algoritmo estándar de la industria (AES-256 en modo GCM)
 const ALGORITHM = 'aes-256-gcm';
 const IV_LENGTH = 12; // Vector de inicialización para GCM
@@ -26,7 +32,7 @@ export function encrypt(text, secretPhrase) {
 export function decrypt(cipherText, secretPhrase) {
     const [saltHex, ivHex, authTagHex, encryptedHex] = cipherText.split(':');
     if (!saltHex || !ivHex || !authTagHex || !encryptedHex) {
-        throw new Error('El formato del texto cifrado es inválido.');
+        throw new CryptoGuardianError('El formato del texto cifrado es inválido. Formato esperado: salt:iv:tag:text');
     }
     const salt = Buffer.from(saltHex, 'hex');
     const iv = Buffer.from(ivHex, 'hex');
@@ -35,8 +41,13 @@ export function decrypt(cipherText, secretPhrase) {
     const key = scryptSync(secretPhrase, salt, 32);
     const decipher = createDecipheriv(ALGORITHM, key, iv);
     decipher.setAuthTag(authTag);
-    let decrypted = decipher.update(encryptedHex, 'hex', 'utf8');
-    decrypted += decipher.final('utf8');
-    return decrypted;
+    try {
+        let decrypted = decipher.update(encryptedHex, 'hex', 'utf8');
+        decrypted += decipher.final('utf8');
+        return decrypted;
+    }
+    catch (error) {
+        throw new CryptoGuardianError('Error de integridad: La llave maestra es incorrecta o el bloque fue manipulado.');
+    }
 }
 //# sourceMappingURL=cipher.js.map
