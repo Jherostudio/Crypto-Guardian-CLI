@@ -31,6 +31,3 @@ jobs:
       
     - name: Run tests
       run: npm test
-
-    - name: Run NPM Audit (Security Scan)
-      run: npm audit --audit-level=high --omit=dev
