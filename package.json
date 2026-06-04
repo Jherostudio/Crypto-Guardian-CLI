@@ -40,7 +40,7 @@
   },
   "dependencies": {
     "clipboardy": "^5.3.1",
-    "commander": "^14.0.3",
+    "commander": "^15.0.0",
     "figlet": "^1.11.0"
   }
 }
