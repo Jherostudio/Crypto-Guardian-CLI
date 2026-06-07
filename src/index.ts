@@ -5,6 +5,7 @@ import path from 'node:path';
 import { Command } from 'commander';
 import clipboardy from 'clipboardy';
 import figlet from 'figlet';
+import packageJson from '../package.json' with { type: 'json' };
 import { generateSecurePassword, calculateEntropy } from './entropy.js';
 import { encrypt, decrypt, CryptoGuardianError } from './cipher.js';
 
@@ -13,7 +14,7 @@ const program = new Command();
 program
   .name('crypto-guardian')
   .description('Herramienta CLI de encriptación AES-256-GCM y generador de contraseñas de alta entropía')
-  .version('1.0.2');
+  .version(packageJson.version);
 
 // ==========================================
 // CLI FLAGS (No interactivo)
