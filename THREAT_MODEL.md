@@ -1,45 +1,68 @@
-# Threat Model: Crypto Guardian CLI
+# Threat Model: Crypto Guardian CLI (v2.0.0)
 
 ## Resumen Ejecutivo
-Crypto Guardian CLI es una herramienta de terminal diseñada para la generación segura de contraseñas y encriptación local simétrica de datos confidenciales (texto o archivos pequeños como `.env`). Este documento describe los vectores de ataque previstos y cómo el sistema los mitiga.
+Crypto Guardian CLI es una herramienta de terminal diseñada para la generación de contraseñas de alta entropía y la encriptación simétrica autenticada local (AES-256-GCM) de datos y archivos. Este documento establece los límites de protección, el modelo de amenaza y las mitigaciones técnicas implementadas.
+
+---
 
 ## 1. Alcance (Scope)
-**Dentro del alcance:**
-- Generación de contraseñas de alta entropía.
-- Cálculo de entropía matemática (Shannon Entropy).
-- Encriptación y desencriptación en tránsito local de credenciales usando AES-256-GCM.
 
-**Fuera del alcance:**
-- Compromiso a nivel de Sistema Operativo (Malware, Keyloggers).
-- Ataques de canal lateral (Side-channel attacks) al procesador o memoria durante la ejecución en Node.js.
-- Distribución o almacenamiento seguro prolongado (la CLI no guarda el texto original ni las contraseñas).
+### **Dentro del alcance:**
+- Generación criptográficamente segura de contraseñas mediante CSPRNG de hardware (`node:crypto`).
+- Estimación del espacio de búsqueda / entropía potencial ($E = L \cdot \log_2(R)$).
+- Encriptación simétrica autenticada con **AES-256-GCM** y formato versionado **`CG01`**.
+- Compatibilidad transparente hacia atrás con el formato cifrado legacy (v1).
+- Derivación de claves con **scrypt** y parámetros explícitos (`N=16384, r=8, p=1, maxmem=32MB`).
+- Escritura atómica de archivos en disco con protección contra sobrescritura accidental (`--force`).
+- Limpieza preventiva de memoria (*best-effort zeroization*) en buffers de claves derivados.
+
+### **Fuera del alcance:**
+- Compromiso total a nivel de Sistema Operativo (Rootkits, Malware, Keyloggers activos).
+- Garantía de borrado absoluto de cadenas inmutables de V8/Node.js en la memoria RAM (debido al recolector de basura Garbage Collector).
+- Ataques de canal lateral (*Side-channel attacks*) a nivel de CPU hardware durante la ejecución de Node.js/OpenSSL.
+- Manipulación física del almacenamiento donde residan archivos en texto plano antes de ser cifrados.
+
+---
 
 ## 2. Suposiciones de Seguridad (Assumptions)
-- El usuario opera en un entorno local seguro y confiable.
-- La terminal no está grabando logs en texto plano de forma persistente.
-- La frase maestra proporcionada por el usuario es lo suficientemente compleja.
+
+1. El usuario ejecuta la CLI en una estación de trabajo no comprometida por software malicioso.
+2. El sistema operativo proporciona un generador de números aleatorios criptográficamente seguro (CSPRNG, ej. `/dev/urandom`).
+3. La frase maestra elegida posee la suficiente entropía para resistir ataques de fuerza bruta offline.
+
+---
 
 ## 3. Vectores de Ataque Identificados y Mitigaciones
 
-### 3.1. Predicción del Generador de Números Aleatorios (PRNG)
-* **Amenaza:** Si el generador de números aleatorios no es criptográficamente seguro, un atacante podría predecir las contraseñas generadas o los vectores de inicialización (IVs).
-* **Mitigación:** Crypto Guardian utiliza exclusivamente `node:crypto` (`randomInt` y `randomBytes`), el cual está respaldado por el hardware y el CSPRNG del sistema operativo (por ejemplo, `/dev/urandom` en Unix), garantizando aleatoriedad criptográfica estricta.
+### 3.1. Ataques de Fuerza Bruta Offline a la Frase Maestra
+* **Amenaza:** Un atacante con acceso al ciphertext (`CG01:salt:iv:tag:text`) intenta adivinar la frase maestra mediante iteraciones masivas en GPU/ASIC.
+* **Mitigación:** Se utiliza la función KDF **scryptSync** con parámetros explícitos (`N=16384, r=8, p=1`). El costo de memoria y CPU impone una barrera computacional prohibitiva para ataques por fuerza bruta. La seguridad final depende de la entropía de la frase maestra y del costo del KDF.
 
-### 3.2. Ataques de Fuerza Bruta a la Frase Maestra
-* **Amenaza:** Un atacante que posea el bloque cifrado (`salt:iv:tag:text`) intenta adivinar la frase maestra iterando millones de posibilidades.
-* **Mitigación:** Se utiliza la función de derivación de claves **scrypt** (`scryptSync`). Esta función incluye un factor de costo computacional y de memoria, lo que hace que los ataques de fuerza bruta (especialmente usando ASICs o GPUs) sean prohibitivamente lentos y costosos.
+### 3.2. Manipulación y Tampering del Texto Cifrado (Integridad)
+* **Amenaza:** Un atacante modifica el ciphertext para alterar el contenido desencriptado (*Bit-flipping attack*).
+* **Mitigación:** AES-256-GCM incluye un Tag de Autenticación de 128 bits. Cualquier modificación en el ciphertext, IV, salt o authTag fallará la validación criptográfica y abortará la operación mediante una excepción segura (`CryptoGuardianError`).
 
-### 3.3. Manipulación del Texto Cifrado (Integridad)
-* **Amenaza:** Un atacante intercepta el texto cifrado e intenta modificar bits (Bit-flipping attack) para alterar el contenido desencriptado resultante (por ejemplo, cambiar un valor "admin=false" a "admin=true").
-* **Mitigación:** La encriptación utiliza **AES-256 en modo GCM (Galois/Counter Mode)**, un cifrado autenticado. El `authTag` generado previene estrictamente la manipulación; cualquier cambio a un solo byte del texto cifrado hará que el proceso de desencriptación lance una excepción y rechace el bloque por completo.
+### 3.3. Reutilización del Vector de Inicialización (Nonce Reuse)
+* **Amenaza:** Reutilizar el mismo IV con la misma clave en AES-GCM compromete el cifrado.
+* **Mitigación:** Cada encriptación genera un `salt` aleatorio único de 16 bytes y un `iv` aleatorio único de 12 bytes mediante `randomBytes()`. Cifrar el mismo contenido dos veces genera resultados completamente distintos.
 
-### 3.4. Ataque de Reutilización de IV (Nonce Reuse)
-* **Amenaza:** En AES-GCM, reutilizar el mismo Vector de Inicialización (IV) con la misma llave anula la seguridad.
-* **Mitigación:** Cada operación de cifrado genera un `salt` aleatorio de 16 bytes y un `iv` aleatorio de 12 bytes mediante `randomBytes()`. Esto garantiza un cifrado semánticamente seguro donde cifrar el mismo texto dos veces producirá resultados completamente distintos.
+### 3.4. Exposición de Secretos en Flags de Terminal
+* **Amenaza:** Pasar la frase maestra mediante `--password "secreto"` puede registrar la clave en `.bash_history`, `.zsh_history`, visores de procesos (`ps aux`) o logs de CI/CD.
+* **Mitigación:** Se recomienda omitir el flag `-p, --password` para activar la lectura interactiva sin echo directo, o utilizar variables de entorno en procesos automatizados.
+
+### 3.5. Superficie de Ataque del Portapapeles (Clipboard)
+* **Amenaza:** El portapapeles del sistema operativo es legible por cualquier aplicación nivel usuario que se ejecute en segundo plano.
+* **Mitigación:** Se incluye el flag `--no-clipboard` para desactivar la copia automática al portapapeles cuando se requiera operar en entornos de alta confidencialidad.
+
+---
 
 ## 4. Limitaciones Conocidas
-1. **Borrado en Memoria (Zeroing):** Node.js usa Garbage Collection. Las variables en memoria (como el texto plano) no pueden sobrescribirse con ceros manualmente de forma determinista una vez utilizadas, lo que significa que el texto plano podría residir temporalmente en la memoria RAM hasta que sea recolectado.
-2. **Historial de la Terminal:** Si el usuario pasa secretos por argumentos en un futuro (CLI flags), estos pueden quedar guardados en el archivo `.bash_history` o `.zsh_history`. Se recomienda usar prompts interactivos (comportamiento actual) o variables de entorno para las llaves maestras.
+
+1. **Borrado en Memoria (*Best-Effort Zeroization*):** Aunque se aplica `wipeBuffer(key)` en bloques `finally` para limpiar la clave del Heap de Node.js, V8 gestiona cadenas e internas inmutables mediante Garbage Collection. No se promete ni garantiza una "limpieza absoluta o determinista de memoria".
+2. **Archivos Grandes en Memoria:** La CLI procesa archivos como Buffers completos en memoria RAM. Para archivos extremadamente grandes (varios Gigabytes), se recomienda dividir el archivo previamente.
+
+---
 
 ## 5. Contacto de Seguridad
-Para reportar vulnerabilidades en la implementación, por favor contactar al autor vía GitHub o abrir un Security Advisory privado en el repositorio de Crypto Guardian CLI.
+Para reportar vulnerabilidades o fallos de seguridad, favor de abrir un Security Advisory privado en el repositorio de GitHub de Crypto Guardian CLI.
+

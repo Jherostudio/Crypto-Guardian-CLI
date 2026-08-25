@@ -27,6 +27,12 @@ function getSecurityLevel(entropy) {
 }
 // 3. Generador criptográficamente seguro usando hardware (crypto nativo)
 export function generateSecurePassword(length = 16) {
+    // Sanitizar y validar la longitud (rango seguro entre 4 y 1024 caracteres)
+    let targetLength = typeof length === 'number' && !Number.isNaN(length) ? Math.floor(length) : 16;
+    if (targetLength < 4)
+        targetLength = 4;
+    if (targetLength > 1024)
+        targetLength = 1024;
     const chars = {
         upper: 'ABCDEFGHIJKLMNOPQRSTUVWXYZ',
         lower: 'abcdefghijklmnopqrstuvwxyz',
@@ -41,7 +47,7 @@ export function generateSecurePassword(length = 16) {
     passwordChars.push(chars.digits[randomInt(chars.digits.length)]);
     passwordChars.push(chars.symbols[randomInt(chars.symbols.length)]);
     // Llenar el resto de la longitud de forma aleatoria segura
-    for (let i = passwordChars.length; i < length; i++) {
+    for (let i = passwordChars.length; i < targetLength; i++) {
         passwordChars.push(allChars[randomInt(allChars.length)]);
     }
     // Mezclar los caracteres para romper el orden del inicio (Fisher-Yates)
