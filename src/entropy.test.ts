@@ -40,5 +40,14 @@ describe('Crypto Guardian Entropy Generator', () => {
             // 16 chars from a 94-char pool gives ~104 bits of entropy (>80 is EXTREMA)
             expect(level).toBe('EXTREMA');
         });
+
+        it('should safely handle edge case length values (0, negative, NaN, Infinity, extreme sizes)', () => {
+            expect(generateSecurePassword(0).password.length).toBe(4); // min bound
+            expect(generateSecurePassword(-10).password.length).toBe(4); // min bound
+            expect(generateSecurePassword(NaN).password.length).toBe(16); // fallback default
+            expect(generateSecurePassword(Infinity).password.length).toBe(1024); // max bound
+            expect(generateSecurePassword(5000).password.length).toBe(1024); // max bound
+            expect(generateSecurePassword(12.8).password.length).toBe(12); // floored
+        });
     });
 });

@@ -1,128 +1,125 @@
-# Crypto Guardian CLI 🛡️
+# Crypto Guardian CLI 🔐
 
 <div align="center">
   <img src="demo.gif" alt="Crypto Guardian CLI Demo" width="800"/>
 </div>
 
 <p align="center">
-  <a href="https://www.npmjs.com/package/@jherostudio/crypto-guardian-cli"><img src="https://img.shields.io/npm/v/@jherostudio/crypto-guardian-cli?style=flat-square&color=blue" alt="npm version"></a>
-  <a href="https://github.com/Jherostudio/Crypto-Guardian-CLI/actions"><img src="https://img.shields.io/github/actions/workflow/status/Jherostudio/Crypto-Guardian-CLI/ci.yml?style=flat-square" alt="CI Status"></a>
-  <a href="https://github.com/Jherostudio/Crypto-Guardian-CLI/security/code-scanning"><img src="https://img.shields.io/github/actions/workflow/status/Jherostudio/Crypto-Guardian-CLI/codeql.yml?label=CodeQL&style=flat-square" alt="CodeQL Status"></a>
-  <img src="https://img.shields.io/badge/Security-AES--256--GCM-success?style=flat-square" alt="Security Standard">
+  <a href="https://github.com/Jherostudio/Crypto-Guardian-CLI/actions/workflows/ci.yml"><img src="https://img.shields.io/github/actions/workflow/status/Jherostudio/Crypto-Guardian-CLI/ci.yml?style=flat-square&label=CI%20Pipeline" alt="CI Pipeline"></a>
+  <a href="https://github.com/Jherostudio/Crypto-Guardian-CLI/actions/workflows/codeql.yml"><img src="https://img.shields.io/github/actions/workflow/status/Jherostudio/Crypto-Guardian-CLI/codeql.yml?style=flat-square&label=CodeQL%20Security" alt="CodeQL Security Scan"></a>
+  <a href="https://www.npmjs.com/package/@jherostudio/crypto-guardian-cli"><img src="https://img.shields.io/npm/v/@jherostudio/crypto-guardian-cli.svg?style=flat-square&color=blue" alt="npm version"></a>
+  <img src="https://img.shields.io/badge/Security-AES--256--GCM%20(CG01)-success?style=flat-square" alt="Security Standard">
+  <img src="https://img.shields.io/badge/License-ISC-blue.svg?style=flat-square" alt="License: ISC">
 </p>
 
-A professional, secure, and highly automated Command Line Interface (CLI) tool designed for robust cryptographic operations. Built natively in TypeScript, it leverages hardware-backed cryptography to generate high-entropy passwords, perform authenticated symmetric encryption on files and strings, and manage memory securely via zeroization.
+An enterprise-grade, interactive TypeScript Command Line Interface (CLI) engineered for secure password generation, real-time entropy calculation, and hardware-accelerated **AES-256-GCM (CG01)** authenticated data & file encryption/decryption.
 
-Developed under strict engineering and AppSec standards by **Jhero Studio**.
-
----
-
-## ⚡ Key Features
-
-* **High-Entropy Password Generation:** Generates cryptographically secure random passwords using OS-level CSPRNG (`node:crypto`).
-* **Shannon Entropy Auditing:** Real-time mathematical evaluation of password strength ($E = L \cdot \log_2(R)$) to classify security levels up to `EXTREMA` status (>80 bits).
-* **Advanced Data & File Encryption (AES-256-GCM):** Industry-standard symmetric encryption to secure physical files (like `.env`) or raw text strings.
-* **Authenticated Decryption:** Utilizes Galois/Counter Mode (GCM) authentication tags to strictly prevent Bit-Flipping attacks and unauthorized data tampering.
-* **Dual Interface (CLI & Interactive):** Fully scriptable via command-line flags or accessible via an immersive ASCII-art interactive menu.
-* **Automatic Clipboard Integration:** Smooth Developer Experience (DX) that safely copies generated secrets to your OS clipboard.
-
-## 🛡️ Operational Security & AppSec (DevSecOps)
-
-* **Threat Modeling:** Documented boundaries of protection (See [`THREAT_MODEL.md`](./THREAT_MODEL.md)).
-* **Secure Memory Wiping (Zeroization):** Derived cryptographic keys are forcefully zeroized (`Buffer.fill(0)`) from V8/RAM immediately after OpenSSL context initialization to prevent memory scraping.
-* **Key Derivation (scrypt):** Mitigates brute-force and ASIC attacks using dynamic salts and computationally expensive scrypt parameters.
-* **Automated Security Pipelines:** Protected by GitHub Actions, including **CodeQL (SAST)**, **Dependabot**, and **NPM Audit pipelines**.
-* **Automated Testing:** Cryptographic integrity and entropy logic covered by `vitest`.
+Developed under defensive AppSec standards by **Jhero Studio**.
 
 ---
 
-## 🚀 Getting Started
+## ⚡ Key Security & Architectural Features
 
-### Prerequisites
-Requires Node.js LTS (v18, v20, or v22).
+* **Authenticated Encryption (AEAD):** Implements `AES-256-GCM` with dynamic initialization vectors (IVs), salt, and authentication tags (`CG01`) to guarantee confidentiality and cryptographic integrity.
+* **Full Legacy Backward Compatibility:** Transparently decrypts older v1 (`salt:iv:tag:text`) encrypted payloads and `.enc` files.
+* **Information-Theoretic Entropy:** Computes real-time potential entropy ($E = L \cdot \log_2(R)$) to detect weak character patterns and prevent brute-force/dictionary vulnerabilities.
+* **CSPRNG Generation:** Uses native hardware cryptographic pseudo-random number generators (`crypto.randomBytes` / `randomInt`) for high-security key and password derivation.
+* **Atomic Binary File Handling:** Encrypts and decrypts any physical file (images, PDFs, ZIPs, `.env`) with atomic disk writes and overwrite protection (`--force`).
+* **Best-Effort Memory Zeroization:** Cryptographic keys are zeroized (`Buffer.fill(0)`) in `finally` blocks immediately after OpenSSL context initialization.
+* **Zero External Network Dependencies:** 100% offline runtime operation with zero telemetry or third-party data transmission.
+* **Threat Modeled Architecture:** Built following strict security guidelines detailed in [`THREAT_MODEL.md`](./THREAT_MODEL.md).
 
-### Global Installation (Recommended)
-You can install the CLI globally via NPM or GitHub Packages to use it from anywhere in your terminal:
+---
 
+## 📦 Installation
+
+### Global via npm
 ```bash
 npm install -g @jherostudio/crypto-guardian-cli
 ```
 
-### Local Development
+### Local Development Setup
 ```bash
 git clone https://github.com/Jherostudio/Crypto-Guardian-CLI.git
 cd Crypto-Guardian-CLI
-npm install
+npm ci
 npm run build
+npm test
 ```
 
 ---
 
-## 🕹️ Usage Guide
+## 🚀 Usage Guide
 
-You can run the tool in **Interactive Mode** by simply typing:
+### Interactive Mode
+Run the interactive ASCII-art CLI directly from your terminal:
 ```bash
 crypto-guardian
 # or locally: npm start
 ```
 
-### Scripting & Automation (CLI Flags)
-
-The CLI is fully scriptable for CI/CD environments or bash scripts:
-
-**1. Generate a Password (automatically copied to clipboard):**
+Or execute directly via `npx`:
 ```bash
-feature/enterprise-upgrade
-crypto-guardian generate --length 32
+npx @jherostudio/crypto-guardian-cli
 ```
 
-**2. Audit an Existing Password:**
+### Scripting & Automation (CLI Flags)
+
+**1. Generate Passwords:**
+Configurable length with live entropy evaluation and optional `--no-clipboard` flag:
+```bash
+crypto-guardian generate --length 32
+crypto-guardian generate --length 24 --no-clipboard
+```
+
+**2. Encrypt Payload / Physical Files:**
+Authenticated encryption using AES-256-GCM `CG01` with user-supplied passphrases (or secure prompt):
+```bash
+crypto-guardian encrypt --text "DB_HOST=localhost" --password "master_key"
+crypto-guardian encrypt-file --file ./.env --password "master_key"
+crypto-guardian encrypt-file --file ./document.pdf --force
+```
+
+**3. Decrypt Payload / Physical Files:**
+Verifies authentication tags and decrypts ciphertext payloads safely:
+```bash
+crypto-guardian decrypt --cipher "CG01:salt:iv:tag:text" --password "master_key"
+crypto-guardian decrypt-file --file ./.env.enc
+```
+
+**4. Entropy Analysis:**
+Audit arbitrary strings and credentials against mathematical entropy thresholds:
 ```bash
 crypto-guardian audit --password "MySuperS3cr3t!"
 ```
 
-**3. Encrypt a Physical File (e.g., `.env`):**
-```bash
-crypto-guardian encrypt-file --file ./.env --password "master_key_123"
-# Outputs: .env.enc
-```
+---
 
-**4. Decrypt a Physical File:**
-```bash
-crypto-guardian decrypt-file --file ./.env.enc --password "master_key_123"
-# Outputs: .env.decrypted
-```
+## 🧪 Testing & Benchmarking
 
-**5. Encrypt/Decrypt Raw Text:**
 ```bash
-crypto-guardian encrypt --text "DB_HOST=localhost" --password "key"
-crypto-guardian decrypt --cipher "salt:iv:tag:text" --password "key"
+# Run unit & cryptographic test suite (Vitest)
+npm test
+
+# Run build compilation
+npm run build
+
+# Run performance & cryptographic benchmarks
+npm run bench
 ```
 
 ---
 
-## 📂 Project Architecture
+## 🛡️ Security & Audits
 
-```text
-Crypto-Guardian-CLI/
-├── .github/              # CI/CD, CodeQL, Dependabot configs
-├── scripts/              # Performance Benchmarking (vitest bench)
-├── src/
-│   ├── index.ts          # CLI Router (Commander) & Interactive Menu
-│   ├── entropy.ts        # CSPRNG Generation & Shannon Math
-│   ├── cipher.ts         # AES-GCM logic & Zeroization
-│   └── *.test.ts         # Vitest unit tests
-├── THREAT_MODEL.md       # Formal AppSec Threat Model
-└── .release-it.json      # Automated semantic versioning
-```
+This repository enforces automated static application security testing (SAST) and dependency vulnerability gates:
 
----
+* **CodeQL SAST:** Continuous vulnerability scanning against CWE standards.
+* **npm Audit:** Zero tolerance for high/critical security advisories in production and build pipelines.
+* **Threat Model:** For security reports, vulnerability disclosures, or threat modeling specifics, refer to [`THREAT_MODEL.md`](./THREAT_MODEL.md).
 
-```
-Plaintext
-47e188f79133dbe...61f2aa3f58f8800cd3932a1242
-```
 ---
 
 ## 📄 License
-This project is open-source and proudly developed by **Jhero Studio**. It is available under the **MIT License**.
+
+Distributed under the ISC License. Developed with defensive engineering standards by [Jhero Studio](https://github.com/Jherostudio).
