@@ -23,5 +23,8 @@ RUN npm ci --omit=dev
 # Copiar el código compilado desde el builder
 COPY --from=builder /app/dist ./dist
 
+# Configurar usuario sin privilegios root
+USER node
+
 # Configurar el punto de entrada de la CLI
 ENTRYPOINT ["node", "dist/index.js"]
